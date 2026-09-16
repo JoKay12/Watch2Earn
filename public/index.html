@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch & Earn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <div id="app-toast" class="app-toast hidden" role="status" aria-live="polite"></div>
+
+  <!-- Social icon sprite — referenced via <use> in both footers below -->
+  <svg style="display:none" aria-hidden="true">
+    <symbol id="icon-youtube" viewBox="0 0 24 24">
+      <rect x="1" y="1" width="22" height="22" rx="6" fill="#FF0000"/>
+      <path d="M10 8.2v7.6l6.5-3.8-6.5-3.8z" fill="#fff"/>
+    </symbol>
+    <symbol id="icon-instagram" viewBox="0 0 24 24">
+      <defs>
+        <linearGradient id="ig-grad" x1="1" y1="23" x2="23" y2="1">
+          <stop offset="0" stop-color="#FEE411"/>
+          <stop offset="0.35" stop-color="#F7742F"/>
+          <stop offset="0.65" stop-color="#D6265E"/>
+          <stop offset="1" stop-color="#9B36B7"/>
+        </linearGradient>
+      </defs>
+      <rect x="1" y="1" width="22" height="22" rx="6" fill="url(#ig-grad)"/>
+      <rect x="6.3" y="6.3" width="11.4" height="11.4" rx="3.6" fill="none" stroke="#fff" stroke-width="1.6"/>
+      <circle cx="12" cy="12" r="3.1" fill="none" stroke="#fff" stroke-width="1.6"/>
+      <circle cx="16.4" cy="7.6" r="0.95" fill="#fff"/>
+    </symbol>
+    <symbol id="icon-facebook" viewBox="0 0 24 24">
+      <rect x="1" y="1" width="22" height="22" rx="6" fill="#1877F2"/>
+      <path d="M14 8.2h1.8V5.6h-1.8c-2 0-3.3 1.3-3.3 3.4v1.6H8.6v2.6h2.1V18h2.7v-4.8h2l.3-2.6h-2.3V9.1c0-.6.3-.9.9-.9z" fill="#fff"/>
+    </symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24">
+      <rect x="1" y="1" width="22" height="22" rx="6" fill="#000"/>
+      <path d="M6.3 6.3l11.4 11.4M17.7 6.3L6.3 17.7" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-tiktok" viewBox="0 0 24 24">
+      <rect x="1" y="1" width="22" height="22" rx="6" fill="#000"/>
+      <path d="M13.9 5.3c.3 1.9 1.6 3.2 3.5 3.5v2.4c-1.3 0-2.5-.4-3.5-1.1v5.1a4.4 4.4 0 1 1-3.8-4.4v2.4a2 2 0 1 0 1.5 2V5.3h2.3z" fill="#fff"/>
+    </symbol>
+    <symbol id="icon-whatsapp" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" fill="#25D366"/>
+      <path d="M8.5 7.8c.3-.4.7-.4 1-.2l1.1 1.5c.2.3.2.6 0 .9l-.5.6c.5 1 1.3 1.8 2.3 2.3l.6-.5c.3-.2.6-.2.9 0l1.5 1.1c.3.2.3.7 0 1-.6.7-1.4 1-2.3.7-2.2-.6-4.5-2.8-5.1-5.1-.3-.9 0-1.7.5-2.3z" fill="#fff"/>
+    </symbol>
+    <symbol id="icon-messenger" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" fill="#168AFF"/>
+      <path d="M6.8 12.5l3.8-4 2.2 2.2 4.1-2.2-3.8 4-2.2-2.2-4.1 2.2z" fill="#fff"/>
+    </symbol>
+    <symbol id="icon-email" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" fill="#858B96"/>
+      <path d="M6.5 8.5h11v7h-11zM6.8 9l5.2 4 5.2-4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/>
+    </symbol>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="signal-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">Watch<em>&amp;</em>Earn</span>
+    </div>
+    <div class="topbar-cta">
+      <button class="btn-ghost" data-cta="login">Log in</button>
+      <button class="btn-primary btn-small" data-cta="register">Sign up</button>
+    </div>
+  </header>
+
+  <div id="landing-panel">
+
+    <!-- HERO -->
+    <section class="hero">
+      <span class="hero-eyebrow">Official channel rewards</span>
+      <h1 class="hero-title">Watch the channel.<br>Earn real credit.</h1>
+      <p class="hero-sub">Every video you finish adds points to your balance. Cash out for cash, airtime, or a data bundle whenever you hit the payout threshold — no catch, no gimmicks.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" data-cta="register">Create free account</button>
+        <button class="btn-ghost" data-cta="login">I already have an account</button>
+      </div>
+    </section>
+
+    <!-- FEATURED VIDEOS -->
+    <section id="featured-videos" class="featured-videos" aria-labelledby="featured-videos-title">
+      <div class="featured-videos-heading">
+        <div>
+          <h2 id="featured-videos-title" class="featured-title">Featured Videos</h2>
+          <p class="note">Fresh conversations from Dommy Studios — sign in to watch and earn.</p>
+        </div>
+        <a class="featured-view-all" href="#auth-panel" data-cta="register">
+          View all <span aria-hidden="true">›</span>
+        </a>
+      </div>
+
+      <div id="featured-video-grid" class="featured-video-grid" aria-live="polite">
+        <p class="note featured-empty-state">Loading featured videos...</p>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works">
+      <div class="how-step">
+        <span class="how-icon">
+          <span class="signal-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        </span>
+        <h3>Watch</h3>
+        <p class="note">Press play on any video from the channel. Your progress is tracked automatically while you watch.</p>
+      </div>
+      <div class="how-step">
+        <span class="how-icon credit-icon">pts</span>
+        <h3>Earn</h3>
+        <p class="note">Finish a video and the points land in your balance instantly — visible right there on your dashboard.</p>
+      </div>
+      <div class="how-step">
+        <span class="how-icon redeem-icon">$</span>
+        <h3>Redeem</h3>
+        <p class="note">Once you've got enough saved up, request a cash-out for cash, airtime, or a data bundle.</p>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-labelledby="reward-details-title">
+      <div>
+        <span class="eyebrow">Before you start</span>
+        <h2 id="reward-details-title">Know how rewards work</h2>
+      </div>
+      <div class="trust-details">
+        <div><strong id="min-redemption-value">2,000 pts</strong><span>minimum redemption</span></div>
+        <div><strong>Watch to earn</strong><span>quiz adds a bonus on top</span></div>
+        <div><strong>Cash, airtime, data</strong><span>available redemption types</span></div>
+      </div>
+    </section>
+
+    <!-- AUTH -->
+    <section id="auth-panel" class="auth-overlay hidden" role="dialog" aria-modal="true">
+      <button type="button" id="auth-close-btn" class="auth-close-btn dialog-close-btn" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <div class="auth-branding">
+        <div class="brand">
+          <span class="signal-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="brand-name">Watch<em>&amp;</em>Earn</span>
+        </div>
+        <div class="auth-branding-copy">
+          <h1 id="auth-branding-title">Welcome back!<br><em>Keep earning.</em></h1>
+          <p id="auth-branding-sub" class="note">Your rewards are waiting. Sign in to continue watching and earning cash, airtime, and data bundles.</p>
+          <div class="auth-reward-pills">
+            <span class="auth-reward-pill">Cash</span>
+            <span class="auth-reward-pill">Airtime</span>
+            <span class="auth-reward-pill">Data</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-form-side">
+        <div class="auth-form-card">
+          <div class="tabs">
+            <button id="tab-login" class="tab active">Log in</button>
+            <button id="tab-register" class="tab">Sign up</button>
+          </div>
+
+          <button type="button" id="google-btn" class="btn-google">
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+              <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/>
+              <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18z"/>
+              <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33z"/>
+              <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+
+          <div class="auth-divider"><span>or</span></div>
+
+          <form id="login-form">
+            <label>Email<input type="email" id="login-email" autocomplete="email" required></label>
+            <label>Password
+              <div class="password-field">
+                <input type="password" id="login-password" autocomplete="current-password" required>
+                <button type="button" class="password-toggle" data-target="login-password" aria-label="Show password">Show</button>
+              </div>
+            </label>
+            <div class="auth-row-between">
+              <label class="auth-checkbox"><input type="checkbox" id="login-remember"> Remember me</label>
+              <button type="button" id="forgot-password-link" class="link-btn">Forgot password?</button>
+            </div>
+            <button type="submit" class="btn-primary">Log in</button>
+          </form>
+
+          <form id="register-form" class="hidden">
+            <label>Email<input type="email" id="register-email" autocomplete="email" required></label>
+            <label>Password
+              <div class="password-field">
+                <input type="password" id="register-password" autocomplete="new-password" required minlength="8" placeholder="8+ characters" aria-describedby="password-requirement">
+                <button type="button" class="password-toggle" data-target="register-password" aria-label="Show password">Show</button>
+              </div>
+            </label>
+            <p id="password-requirement" class="field-hint">Use at least 8 characters.</p>
+            <label>Referral code <span class="optional">optional</span><input type="text" id="register-referral" autocomplete="off" placeholder="Enter a code if you have one"></label>
+            <button type="submit" class="btn-primary">Create account</button>
+          </form>
+
+          <form id="forgot-form" class="hidden">
+            <p class="note">Enter your email and we'll send you a link to reset your password.</p>
+            <label>Email<input type="email" id="forgot-email" autocomplete="email" required></label>
+            <button type="submit" class="btn-primary">Send reset link</button>
+            <button type="button" id="back-to-login-link" class="link-btn">Back to log in</button>
+          </form>
+
+          <p id="auth-error" class="error" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+
+    <footer class="site-footer">
+      <section class="footer-cta" aria-labelledby="footer-cta-title">
+        <h2 id="footer-cta-title">Ready to Start Earning?</h2>
+        <p>Join the conversation on Dommy Studios and start collecting rewards today.</p>
+        <button class="footer-cta-button" data-cta="register">Create Free Account <span aria-hidden="true">→</span></button>
+      </section>
+
+      <div class="footer-content">
+        <div class="footer-brand-column">
+          <a class="footer-brand" href="#landing-panel" aria-label="Watch and Earn home">
+            <span aria-hidden="true">↗</span> Watch<span>Earn</span>
+          </a>
+          <p>WatchEarn lets you earn real rewards — cash, airtime, and data bundles — simply by watching videos from the Dommy Studios channel. Free to join, easy to use, available on any device.</p>
+          <nav class="footer-socials" aria-label="Dommy Studios social links">
+            <a class="social-icon" href="https://www.youtube.com/@DommyStudios" target="_blank" rel="noopener noreferrer" aria-label="Visit Dommy Studios on YouTube"><svg viewBox="0 0 24 24"><use href="#icon-youtube"/></svg></a>
+            <a class="social-icon" href="https://instagram.com/_dommystudios" target="_blank" rel="noopener noreferrer" aria-label="Visit Dommy Studios on Instagram"><svg viewBox="0 0 24 24"><use href="#icon-instagram"/></svg></a>
+            <a class="social-icon" href="https://facebook.com/profile.php?id=61577985577987" target="_blank" rel="noopener noreferrer" aria-label="Visit Dommy Studios on Facebook"><svg viewBox="0 0 24 24"><use href="#icon-facebook"/></svg></a>
+            <a class="social-icon" href="https://x.com/dommystudios?s=11" target="_blank" rel="noopener noreferrer" aria-label="Visit Dommy Studios on X"><svg viewBox="0 0 24 24"><use href="#icon-x"/></svg></a>
+            <a class="social-icon" href="https://tiktok.com/@dommystudios?_t=ZM-8y0WaKyJz5Q&amp;_r=1" target="_blank" rel="noopener noreferrer" aria-label="Visit Dommy Studios on TikTok"><svg viewBox="0 0 24 24"><use href="#icon-tiktok"/></svg></a>
+          </nav>
+        </div>
+
+        <div class="footer-links-column">
+          <h3>Quick links</h3>
+          <button type="button" data-cta="register">Sign Up</button>
+          <button type="button" data-cta="login">Sign In</button>
+          <a href="#featured-videos">Explore Videos</a>
+          <button type="button" data-cta="login">My Rewards</button>
+          <a href="/faq.html">FAQ</a>
+        </div>
+
+        <div class="footer-steps-column">
+          <h3>How it works</h3>
+          <ol>
+            <li>Create a free account in seconds</li>
+            <li>Watch Dommy Studios videos you enjoy</li>
+            <li>Complete earning tasks to unlock rewards</li>
+            <li>Redeem as cash, airtime, or a data bundle</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 WatchEarn. All rights reserved.</span>
+        <nav class="footer-legal-links" aria-label="Legal">
+          <a href="/faq.html">FAQ</a>
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="/terms.html">Terms of Service</a>
+        </nav>
+        <span>Powered by <a href="https://www.youtube.com/@DommyStudios" target="_blank" rel="noopener noreferrer">DommyStudios</a></span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- APP -->
+  <div id="app-panel" class="hidden app-shell">
+
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="sidebar-toggle" id="sidebar-toggle" aria-label="Collapse sidebar">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="profile-card">
+        <span class="avatar" id="avatar-initial">?</span>
+        <div class="profile-info">
+          <span class="profile-name" id="profile-email">—</span>
+          <span class="profile-sub">Member</span>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <button class="side-nav-btn active" data-page="dashboard" title="Dashboard">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="1.5" y="1.5" width="9" height="5.5" rx="1.8"></rect><rect x="13.5" y="1.5" width="9" height="14" rx="1.8"></rect><rect x="1.5" y="9.5" width="9" height="13" rx="1.8"></rect><rect x="13.5" y="18" width="9" height="4.5" rx="1.8"></rect></svg></span>
+          <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="side-nav-btn" data-page="profile" title="Profile">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"></path></svg></span>
+          <span class="nav-label">Profile</span>
+        </button>
+        <button class="side-nav-btn" data-page="explore" title="Explore Videos">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polygon points="10 8.5 16 12 10 15.5" fill="currentColor" stroke="none"></polygon></svg></span>
+          <span class="nav-label">Explore Videos</span>
+        </button>
+        <button class="side-nav-btn" data-page="history" title="Watched History">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 9 8 9"></polyline><polyline points="12 8 12 12 15.5 14"></polyline></svg></span>
+          <span class="nav-label">Watched History</span>
+        </button>
+        <button class="side-nav-btn" data-page="rewards" title="Rewards &amp; Earnings">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 9c-0.8-3-2.8-5.5-5.3-5.5A3.2 3.2 0 0 0 3.5 6.7c0 2.8 3.3 4.3 8.5 6"></path><path d="M12 9c0.8-3 2.8-5.5 5.3-5.5a3.2 3.2 0 0 1 3.2 3.2c0 2.8-3.3 4.3-8.5 6"></path><rect x="1.5" y="8.7" width="9.3" height="4.6" rx="1.3"></rect><rect x="13.2" y="8.7" width="9.3" height="4.6" rx="1.3"></rect><rect x="2.5" y="13.8" width="8.2" height="9" rx="1"></rect><rect x="13.3" y="13.8" width="8.2" height="9" rx="1"></rect></svg></span>
+          <span class="nav-label">Rewards &amp; Earnings</span>
+        </button>
+        <button class="side-nav-btn" data-page="community" title="Community">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="6.2" r="3.7"></circle><path d="M12 11.3c-3.4 0-6.2 2.3-6.6 6.3a0.7 0.7 0 0 0 0.7 0.8h11.8a0.7 0.7 0 0 0 0.7-0.8c-0.4-4-3.2-6.3-6.6-6.3z"></path><circle cx="4" cy="9.3" r="2.6"></circle><path d="M4.3 12.4c-2.4 0.1-4 1.9-4.3 4.6a0.6 0.6 0 0 0 0.6 0.7h3.1c0.1-1.9 0.7-3.6 1.7-4.9a5 5 0 0 0-1.1-0.4z"></path><circle cx="20" cy="9.3" r="2.6"></circle><path d="M19.7 12.4c2.4 0.1 4 1.9 4.3 4.6a0.6 0.6 0 0 1-0.6 0.7h-3.1c-0.1-1.9-0.7-3.6-1.7-4.9a5 5 0 0 1 1.1-0.4z"></path></svg></span>
+          <span class="nav-label">Community</span>
+        </button>
+        <button type="button" class="side-nav-btn mobile-more-btn" id="mobile-more-btn" title="More" aria-haspopup="true" aria-expanded="false">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="19" cy="12" r="2.2"></circle></svg></span>
+          <span class="nav-label">More</span>
+        </button>
+      </nav>
+
+      <div class="mobile-more-menu hidden" id="mobile-more-menu">
+        <button type="button" class="side-nav-btn" data-page="profile">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"></path></svg></span>
+          <span class="nav-label">Profile</span>
+        </button>
+        <button type="button" class="side-nav-btn" data-page="history">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 9 8 9"></polyline><polyline points="12 8 12 12 15.5 14"></polyline></svg></span>
+          <span class="nav-label">Watched History</span>
+        </button>
+        <button type="button" class="side-nav-btn" data-page="community">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="6.2" r="3.7"></circle><path d="M12 11.3c-3.4 0-6.2 2.3-6.6 6.3a0.7 0.7 0 0 0 0.7 0.8h11.8a0.7 0.7 0 0 0 0.7-0.8c-0.4-4-3.2-6.3-6.6-6.3z"></path><circle cx="4" cy="9.3" r="2.6"></circle><path d="M4.3 12.4c-2.4 0.1-4 1.9-4.3 4.6a0.6 0.6 0 0 0 0.6 0.7h3.1c0.1-1.9 0.7-3.6 1.7-4.9a5 5 0 0 0-1.1-0.4z"></path><circle cx="20" cy="9.3" r="2.6"></circle><path d="M19.7 12.4c2.4 0.1 4 1.9 4.3 4.6a0.6 0.6 0 0 1-0.6 0.7h-3.1c-0.1-1.9-0.7-3.6-1.7-4.9a5 5 0 0 1 1.1-0.4z"></path></svg></span>
+          <span class="nav-label">Community</span>
+        </button>
+        <button type="button" class="side-nav-btn" id="mobile-more-logout">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+          <span class="nav-label">Log out</span>
+        </button>
+      </div>
+
+      <button id="logout-btn" class="btn-ghost sidebar-logout" title="Log out">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+        <span class="nav-label">Log out</span>
+      </button>
+    </aside>
+
+    <main class="content">
+
+      <!-- Dashboard page -->
+      <div id="page-dashboard" class="page">
+        <h2 id="dashboard-greeting" class="dashboard-greeting"></h2>
+        <div class="dashboard">
+          <div class="card meter-card">
+            <div class="meter">
+              <svg viewBox="0 0 120 120" class="meter-ring">
+                <circle cx="60" cy="60" r="52" class="meter-track"/>
+                <circle cx="60" cy="60" r="52" class="meter-fill" id="meter-fill"/>
+              </svg>
+              <div class="meter-center">
+                <span id="points-balance" class="meter-value">0</span>
+                <span class="meter-label">points</span>
+              </div>
+            </div>
+            <p class="meter-caption"><span id="meter-caption-text">0 pts to next tier</span></p>
+          </div>
+
+          <div class="card referral-card">
+            <span class="eyebrow">Referral code</span>
+            <div class="referral-code-row">
+              <span id="referral-code" class="referral-code"></span>
+              <button type="button" id="share-referral-btn" class="btn-ghost referral-share-btn">Share</button>
+            </div>
+            <p class="note">Share this — every 5 signups using your code expands your daily video pool and watch limit.</p>
+          </div>
+        </div>
+
+        <div id="continue-watching-card" class="card continue-watching-card hidden">
+          <span class="eyebrow">Pick up where you left off</span>
+          <div id="continue-watching-body"></div>
+        </div>
+
+        <section class="dashboard-summary" aria-label="Your earning progress">
+          <div class="card dashboard-summary-card dashboard-summary-primary">
+            <span class="eyebrow">Today's opportunity</span>
+            <strong id="dashboard-video-count">0 videos available</strong>
+            <span id="dashboard-earning-estimate" class="note">Up to 0 pts if you complete them</span>
+            <button type="button" id="dashboard-start-btn" class="btn-primary">Explore videos</button>
+          </div>
+          <div class="card dashboard-summary-card">
+            <span class="eyebrow">Redemption progress</span>
+            <strong id="dashboard-redemption-progress">0 / 2,000 pts</strong>
+            <span id="dashboard-payout-status" class="note">No pending payouts</span>
+          </div>
+          <div class="card dashboard-summary-card">
+            <span class="eyebrow">Referral progress</span>
+            <strong id="dashboard-referral-progress">0 of 5 referrals</strong>
+            <span id="dashboard-referral-status" class="note">Refer 5 users to unlock 8 videos and a daily watch limit of 5</span>
+          </div>
+        </section>
+
+        <h2 class="section-title">Recent activity</h2>
+        <div id="dashboard-recent-list" class="ticket-list"></div>
+      </div>
+
+      <!-- Explore Videos page -->
+      <div id="page-explore" class="page hidden">
+        <h2 class="section-title">Explore videos</h2>
+        <p id="explore-access-note" class="note">You have access to 5 Let's Discuss videos today. Watch a video fully, then answer its questions to earn the video reward plus a quiz bonus.</p>
+        <div class="explore-toolbar" role="search">
+          <label class="search-field">
+            <span class="sr-only">Search videos</span>
+            <input type="search" id="explore-search" placeholder="Search videos" autocomplete="off">
+          </label>
+          <label class="sort-field">
+            <span class="sr-only">Sort videos</span>
+            <select id="explore-sort">
+              <option value="daily">Today's selection</option>
+              <option value="newest">Newest first</option>
+              <option value="reward">Highest reward</option>
+              <option value="duration">Shortest first</option>
+            </select>
+          </label>
+        </div>
+        <div id="explore-video-list" class="grid"></div>
+
+        <div id="player-panel" class="card player-card hidden">
+          <div class="player-body">
+            <div class="player-frame-wrap">
+              <div id="yt-player" class="player-frame"></div>
+              <button type="button" id="player-play-overlay" class="player-play-overlay hidden" aria-label="Play video">
+                <svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="28" fill="#fff" opacity="0.9"/><path d="M22 17l18 11-18 11V17z" fill="#0B1220"/></svg>
+              </button>
+            </div>
+            <div class="player-side">
+              <svg viewBox="0 0 100 100" class="watch-ring">
+                <circle cx="50" cy="50" r="44" class="watch-track"/>
+                <circle cx="50" cy="50" r="44" class="watch-fill" id="watch-fill"/>
+              </svg>
+              <div class="watch-ring-label">
+                <span id="watch-percent">0%</span>
+                <span class="watch-ring-sub">to reward</span>
+              </div>
+            </div>
+          </div>
+          <p id="watch-status" class="note">Press play to start earning.</p>
+          <button type="button" id="watch-limit-referral-cta" class="btn-primary hidden" style="margin-top:10px;">Invite friends to raise your limit</button>
+        </div>
+
+        <div id="quiz-panel" class="quiz-modal hidden" role="dialog" aria-modal="true" aria-labelledby="quiz-title" tabindex="-1">
+          <div class="card quiz-modal-card">
+            <div class="quiz-modal-header">
+              <div>
+                <span class="eyebrow">Video complete — reward already earned</span>
+                <h3 id="quiz-title" class="panel-heading">Bonus round!</h3>
+              </div>
+              <div class="quiz-modal-actions">
+                <span class="quiz-required-badge">Bonus</span>
+                <button type="button" id="quiz-close" class="btn-ghost dialog-close-btn" aria-label="Close quiz dialog">Close</button>
+              </div>
+            </div>
+            <p class="note">Your video reward is already in your balance. Answer these 3 questions for bonus points — every correct answer earns extra, so there's no downside to trying.</p>
+            <div id="quiz-questions"></div>
+            <button id="quiz-submit-btn" class="btn-primary">Submit answers</button>
+            <p id="quiz-result" class="note" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Watched History page -->
+      <div id="page-history" class="page hidden">
+        <h2 class="section-title">Watched history</h2>
+        <p class="note">Everything you've started — finished and claimed, waiting on the quiz, or still in progress.</p>
+        <div id="history-list" class="ticket-list"></div>
+      </div>
+
+      <!-- Task > Profile -->
+      <div id="page-profile" class="page hidden">
+        <h2 class="section-title">Profile</h2>
+        <div class="card profile-details-card">
+          <div class="profile-field">
+            <span class="eyebrow">Email</span>
+            <span id="profile-detail-email" class="profile-field-value">—</span>
+          </div>
+          <div class="profile-field">
+            <span class="eyebrow">Referral code</span>
+            <div class="profile-referral-row">
+              <span id="profile-detail-referral" class="profile-field-value referral-code">—</span>
+              <button type="button" id="profile-copy-referral-btn" class="btn-ghost">Copy code</button>
+            </div>
+          </div>
+          <form id="profile-form" class="profile-form">
+            <label>Display name <span class="optional">optional</span>
+              <input type="text" id="profile-display-name" maxlength="60" placeholder="How should we call you?">
+            </label>
+            <label>Phone number <span class="optional">optional · used for airtime or data payouts</span>
+              <input type="tel" id="profile-phone-number" autocomplete="tel" maxlength="30" placeholder="+233...">
+            </label>
+            <button type="submit" id="profile-save-btn" class="btn-primary">Save profile</button>
+          </form>
+          <p id="profile-message" class="note"></p>
+        </div>
+      </div>
+
+      <!-- Community page -->
+      <div id="page-community" class="page hidden">
+        <div class="community-hero">
+          <span class="eyebrow">Dommy Studios community</span>
+          <h2 class="section-title">Stay connected beyond the videos.</h2>
+          <p class="note">Join the conversation, discover new uploads, and follow Dommy Studios across every platform. Your support keeps the community moving.</p>
+        </div>
+        <div class="community-social-grid">
+          <a class="community-social-card" href="https://www.youtube.com/@DommyStudios" target="_blank" rel="noopener noreferrer">
+            <span class="social-icon"><svg viewBox="0 0 24 24"><use href="#icon-youtube"/></svg></span>
+            <span><strong>YouTube</strong><small>Watch the latest conversations</small></span>
+            <span class="community-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="community-social-card" href="https://instagram.com/_dommystudios" target="_blank" rel="noopener noreferrer">
+            <span class="social-icon"><svg viewBox="0 0 24 24"><use href="#icon-instagram"/></svg></span>
+            <span><strong>Instagram</strong><small>Behind the scenes and updates</small></span>
+            <span class="community-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="community-social-card" href="https://facebook.com/profile.php?id=61577985577987" target="_blank" rel="noopener noreferrer">
+            <span class="social-icon"><svg viewBox="0 0 24 24"><use href="#icon-facebook"/></svg></span>
+            <span><strong>Facebook</strong><small>Join the wider discussion</small></span>
+            <span class="community-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="community-social-card" href="https://x.com/dommystudios?s=11" target="_blank" rel="noopener noreferrer">
+            <span class="social-icon"><svg viewBox="0 0 24 24"><use href="#icon-x"/></svg></span>
+            <span><strong>X</strong><small>Catch quick thoughts and news</small></span>
+            <span class="community-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="community-social-card" href="https://tiktok.com/@dommystudios" target="_blank" rel="noopener noreferrer">
+            <span class="social-icon"><svg viewBox="0 0 24 24"><use href="#icon-tiktok"/></svg></span>
+            <span><strong>TikTok</strong><small>Short clips and highlights</small></span>
+            <span class="community-arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Rewards & Earnings page -->
+      <div id="page-rewards" class="page hidden">
+        <h2 class="section-title">Rewards &amp; earnings</h2>
+
+        <div class="card points-summary">
+          <span class="eyebrow">Current balance</span>
+          <span id="points-balance-2" class="points-big">0</span>
+          <span class="note">points</span>
+        </div>
+
+        <h3 class="section-title small">Redeem points</h3>
+        <div class="card redeem-card">
+          <div class="redeem-tabs" id="redeem-type-tabs">
+            <button type="button" class="redeem-tab active" data-type="cash">Cash</button>
+            <button type="button" class="redeem-tab" data-type="airtime">Airtime</button>
+            <button type="button" class="redeem-tab" data-type="data_bundle">Data</button>
+          </div>
+          <div class="perforation" aria-hidden="true"></div>
+          <p class="note">Requests are reviewed and sent manually by an admin — verification can take up to 24 hours before you receive your reward.</p>
+          <form id="redeem-form">
+            <input type="hidden" id="redeem-type" value="cash">
+            <div id="redeem-tier-list" class="redeem-tier-list"></div>
+            <label>Destination <span class="optional">phone / payout account</span>
+              <input type="text" id="redeem-destination" placeholder="+233...">
+            </label>
+            <button type="submit" class="btn-primary" id="redeem-submit-btn" disabled>Request redemption</button>
+            <p id="redeem-message" class="note"></p>
+          </form>
+        </div>
+
+        <h3 class="section-title small">Your redemption requests</h3>
+        <div id="redemption-list" class="ticket-list"></div>
+
+        <h3 class="section-title small">Earnings history</h3>
+        <div id="ledger-list" class="ticket-list"></div>
+      </div>
+
+      <footer class="app-footer" aria-label="Dommy Studios social links">
+        <span>Follow Dommy Studios</span>
+        <nav class="app-footer-links">
+          <a class="social-icon" href="https://www.youtube.com/@DommyStudios" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24"><use href="#icon-youtube"/></svg></a>
+          <a class="social-icon" href="https://instagram.com/_dommystudios" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24"><use href="#icon-instagram"/></svg></a>
+          <a class="social-icon" href="https://facebook.com/profile.php?id=61577985577987" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24"><use href="#icon-facebook"/></svg></a>
+          <a class="social-icon" href="https://x.com/dommystudios?s=11" target="_blank" rel="noopener noreferrer" aria-label="X"><svg viewBox="0 0 24 24"><use href="#icon-x"/></svg></a>
+          <a class="social-icon" href="https://tiktok.com/@dommystudios?_t=ZM-8y0WaKyJz5Q&amp;_r=1" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><svg viewBox="0 0 24 24"><use href="#icon-tiktok"/></svg></a>
+        </nav>
+      </footer>
+
+        <div id="referral-share-panel" class="referral-share-panel hidden" role="dialog" aria-labelledby="referral-share-title" aria-modal="true" tabindex="-1">
+          <div class="referral-share-content">
+            <div class="referral-share-header">
+              <div>
+                <span class="eyebrow">Invite a new user</span>
+                <h3 id="referral-share-title">Share your referral</h3>
+              </div>
+              <button type="button" id="referral-share-close" class="btn-ghost dialog-close-btn" aria-label="Close referral sharing dialog">Close</button>
+            </div>
+            <div id="referral-qr" class="referral-qr" aria-label="Referral QR code"></div>
+            <input id="referral-link" class="referral-link-input" type="text" readonly aria-label="Referral link">
+            <div class="referral-share-actions">
+              <button type="button" id="copy-referral-link-btn" class="btn-primary">Copy link</button>
+              <button type="button" id="native-share-referral-btn" class="btn-ghost">Share link</button>
+            </div>
+            <div class="referral-social-share" aria-label="Share referral link through social media or email">
+              <a class="referral-social-option" id="share-whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Share via WhatsApp"><svg aria-hidden="true"><use href="#icon-whatsapp"/></svg><span>WhatsApp</span></a>
+              <a class="referral-social-option" id="share-facebook" target="_blank" rel="noopener noreferrer" aria-label="Share via Facebook"><svg aria-hidden="true"><use href="#icon-facebook"/></svg><span>Facebook</span></a>
+              <a class="referral-social-option" id="share-messenger" target="_blank" rel="noopener noreferrer" aria-label="Share via Messenger"><svg aria-hidden="true"><use href="#icon-messenger"/></svg><span>Messenger</span></a>
+              <a class="referral-social-option" id="share-x" target="_blank" rel="noopener noreferrer" aria-label="Share via X"><svg aria-hidden="true"><use href="#icon-x"/></svg><span>X</span></a>
+              <a class="referral-social-option" id="share-email" aria-label="Share by email"><svg aria-hidden="true"><use href="#icon-email"/></svg><span>Email</span></a>
+            </div>
+            <p id="referral-share-message" class="note" role="status"></p>
+          </div>
+        </div>
+    </main>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

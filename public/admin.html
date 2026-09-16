@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch & Earn — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+
+  <div id="admin-toast" class="admin-toast hidden" role="status" aria-live="polite"></div>
+  <div id="admin-confirm" class="admin-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="admin-confirm-title" tabindex="-1">
+    <div class="admin-confirm-card">
+      <h2 id="admin-confirm-title">Confirm action</h2>
+      <p id="admin-confirm-message" class="note"></p>
+      <div class="admin-confirm-actions">
+        <button type="button" id="admin-confirm-cancel" class="btn-ghost dialog-close-btn">Cancel</button>
+        <button type="button" id="admin-confirm-accept" class="btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="signal-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">Watch<em>&amp;</em>Earn <span class="admin-badge">Admin</span></span>
+    </div>
+    <div class="topbar-right">
+      <button type="button" id="notify-btn" class="btn-ghost hidden">🔔 Enable notifications</button>
+      <a href="/" class="btn-ghost">View site</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Admin sign-in gate -->
+    <section id="key-gate" class="auth-wrap">
+      <div class="card sim-card">
+        <div class="sim-card-notch"></div>
+        <h2 class="gate-title">Admin access</h2>
+        <p class="note">Sign in with a Supabase account that has an admin role.</p>
+        <form id="key-form">
+          <label>Email<input type="email" id="admin-email-input" autocomplete="username" required></label>
+          <label>Password<input type="password" id="admin-password-input" autocomplete="current-password" required></label>
+          <button type="submit" class="btn-primary">Sign in</button>
+        </form>
+        <p id="key-error" class="error"></p>
+      </div>
+    </section>
+
+    <!-- Console -->
+    <section id="console" class="hidden">
+
+      <div id="stat-grid" class="grid stat-grid"></div>
+
+      <nav class="admin-nav">
+        <button class="admin-nav-btn active" data-panel="dashboard">Dashboard</button>
+        <button class="admin-nav-btn" data-panel="videos">Content</button>
+        <button class="admin-nav-btn" data-panel="redemptions">Payouts <span id="payouts-badge" class="nav-badge hidden">0</span></button>
+        <button class="admin-nav-btn hidden" id="roles-nav-btn" data-panel="roles">Users &amp; roles</button>
+        <button class="admin-nav-btn" data-panel="settings">Settings</button>
+      </nav>
+
+      <div id="panel-dashboard" class="admin-panel">
+        <div class="admin-section-heading"><div><span class="eyebrow">Operations</span><h2>Today at a glance</h2></div><span class="note">Updates every 30 seconds</span></div>
+        <div class="admin-alert-grid">
+          <div class="card admin-alert"><strong id="dashboard-payout-alert">No payout backlog</strong><span class="note">Review pending requests before processing.</span><button type="button" class="btn-ghost" data-open-panel="redemptions">Review payouts</button></div>
+          <div class="card admin-alert"><strong id="dashboard-content-alert">Content health</strong><span class="note">Keep active videos paired with complete quizzes.</span><button type="button" class="btn-ghost" data-open-panel="videos">Manage content</button></div>
+        </div>
+      </div>
+
+      <!-- Videos panel -->
+      <div id="panel-videos" class="admin-panel hidden">
+        <div class="card form-card">
+          <h3 class="panel-heading">Sync videos from YouTube</h3>
+          <p class="note">Pulls the latest uploads from your channel using the YouTube Data API (requires <code>YOUTUBE_API_KEY</code> and <code>YOUTUBE_CHANNEL_ID</code> in .env — see README). New videos are added inactive with a default reward you can adjust per-video afterward; existing videos get their title/duration refreshed without touching your reward amount or active state.</p>
+          <button type="button" id="sync-youtube-btn" class="btn-primary" style="max-width:220px;">Sync now</button>
+          <p id="sync-message" class="note"></p>
+        </div>
+
+        <div class="card form-card">
+          <h3 class="panel-heading">Add a video manually</h3>
+          <form id="video-form" class="inline-form">
+            <label>YouTube video ID <span class="optional">from the URL</span>
+              <input type="text" id="v-yt-id" placeholder="dQw4w9WgXcQ" required>
+            </label>
+            <label>Title
+              <input type="text" id="v-title" placeholder="Video title" required>
+            </label>
+            <label>Duration (seconds)
+              <input type="number" id="v-duration" min="1" required>
+            </label>
+            <label>Reward (points)
+              <input type="number" id="v-points" min="0" value="100" required>
+            </label>
+            <label>Quiz bonus <span class="optional">per correct answer</span>
+              <input type="number" id="v-quiz-bonus" min="0" value="3" required>
+            </label>
+            <button type="submit" class="btn-primary">Add video</button>
+          </form>
+          <p id="video-message" class="note"></p>
+        </div>
+
+        <div class="video-table-toolbar">
+          <label class="toolbar-field toolbar-search">Search videos
+            <input type="search" id="video-search" placeholder="Title or YouTube ID" autocomplete="off">
+          </label>
+          <label class="toolbar-field">Playlist
+            <select id="playlist-filter">
+              <option value="">All videos</option>
+            </select>
+          </label>
+          <label class="toolbar-field">Status
+            <select id="video-status-filter">
+              <option value="">All videos</option>
+              <option value="active">Active (visible to users)</option>
+              <option value="inactive">Inactive</option>
+              <option value="featured">Featured</option>
+            </select>
+          </label>
+          <button type="button" id="sort-toggle-btn" class="btn-ghost">Newest first</button>
+        </div>
+        <p id="video-count-summary" class="note"></p>
+        <div id="video-table" class="admin-table"></div>
+      </div>
+
+      <!-- Quiz question editor (opens over the videos panel) -->
+      <div id="quiz-editor-overlay" class="quiz-editor-overlay hidden" role="dialog" aria-modal="true" tabindex="-1">
+        <div class="card quiz-editor-card">
+          <div class="quiz-editor-header">
+            <h3 class="panel-heading" id="quiz-editor-title">Quiz questions</h3>
+            <button type="button" id="quiz-editor-close" class="btn-ghost dialog-close-btn">Close</button>
+          </div>
+          <p class="note">Every video must have exactly 3 questions, each with 2-4 options and one marked correct answer. Users will see this quiz immediately after finishing the video.</p>
+          <div id="quiz-editor-questions"></div>
+          <button type="button" id="quiz-editor-save" class="btn-primary">Save questions</button>
+          <p id="quiz-editor-message" class="note"></p>
+        </div>
+      </div>
+
+      <!-- Redemptions panel -->
+      <div id="panel-redemptions" class="admin-panel hidden">
+        <div class="card form-card">
+          <h3 class="panel-heading">Payout processing</h3>
+          <p class="note">Automated payouts are disabled until a provider is configured and <code>PAYOUT_AUTOMATION_ENABLED=true</code>.</p>
+          <button type="button" id="process-payouts-btn" class="btn-primary">Process queued payouts</button>
+          <p id="payout-message" class="note"></p>
+        </div>
+        <div class="redeem-filter">
+          <button class="admin-nav-btn active" data-status="pending">Pending</button>
+          <button class="admin-nav-btn" data-status="processing">Processing</button>
+          <button class="admin-nav-btn" data-status="failed">Failed</button>
+          <button class="admin-nav-btn" data-status="fulfilled">Fulfilled</button>
+          <button class="admin-nav-btn" data-status="all">All</button>
+        </div>
+        <div id="redemption-table" class="admin-table"></div>
+        <h3 class="panel-heading admin-subheading">Recent payout audit</h3>
+        <div id="audit-table" class="admin-table"></div>
+      </div>
+
+      <div id="panel-roles" class="admin-panel hidden">
+        <div class="card form-card">
+          <h3 class="panel-heading">Admin roles</h3>
+          <form id="role-form" class="inline-form">
+            <label>User UUID<input type="text" id="role-user-id" required></label>
+            <label>Role<select id="role-name"><option value="admin">Admin</option><option value="content_editor">Content editor</option><option value="payout_operator">Payout operator</option></select></label>
+            <button type="submit" class="btn-primary">Grant role</button>
+          </form>
+          <p id="role-message" class="note"></p>
+        </div>
+        <div id="role-table" class="admin-table"></div>
+      </div>
+
+      <div id="panel-settings" class="admin-panel hidden">
+        <div class="admin-section-heading"><div><span class="eyebrow">Configuration</span><h2>Settings &amp; integrations</h2></div></div>
+        <div class="admin-alert-grid">
+          <div class="card admin-alert"><strong>YouTube content sync</strong><span class="note">Configured through the server environment. Use Content to sync uploads and curate featured videos.</span></div>
+          <div class="card admin-alert"><strong>Payout automation</strong><span class="note">Keep automation disabled until the provider, webhook reconciliation, and sandbox tests are complete.</span></div>
+        </div>
+
+        <div class="admin-section-heading" style="margin-top:28px;"><div><span class="eyebrow">Rewards</span><h2>Reward tiers</h2></div></div>
+        <p class="note">All three reward types now convert at the same flat rate — 100 points = 5 GHS. Leave a field blank to make that reward type unavailable at that tier.</p>
+        <div id="reward-tier-table" class="admin-table"></div>
+      </div>
+
+    </section>
+
+    <footer class="admin-footer" aria-label="Dommy Studios social links">
+      <span>Follow Dommy Studios</span>
+      <nav class="admin-footer-links">
+        <a href="https://www.youtube.com/@DommyStudios" target="_blank" rel="noopener noreferrer">YouTube</a>
+        <a href="https://instagram.com/_dommystudios" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a href="https://facebook.com/profile.php?id=61577985577987" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a href="https://x.com/dommystudios?s=11" target="_blank" rel="noopener noreferrer">X</a>
+        <a href="https://tiktok.com/@dommystudios?_t=ZM-8y0WaKyJz5Q&amp;_r=1" target="_blank" rel="noopener noreferrer">TikTok</a>
+      </nav>
+    </footer>
+  </main>
+
+  <script src="/admin.js"></script>
+</body>
+</html>
