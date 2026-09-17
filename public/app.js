@@ -139,39 +139,42 @@ $('google-btn').onclick = async () => {
   }
 };
 
-// Only accept a Supabase session when this page is returning directly from
-// Google. On an ordinary visit, discard any Supabase session that an earlier
-// version may have stored in the browser.
-(async function handleOAuthReturn() {
+// Runs once on page load, in strict order: check for a fresh Google OAuth
+// return FIRST, and only fall back to a remembered token if that didn't
+// apply. These used to be two separate, uncoordinated pieces of code — a
+// stale "remembered" token could win the race and overwrite a fresh Google
+// session before it finished resolving, which is what caused Google
+// sign-in to silently fail and bounce back to the landing page.
+(async function establishInitialSession() {
+  let handledByOAuth = false;
   try {
     const sb = await getSupabaseClient();
     const isGoogleReturn = window.location.hash.includes('access_token=');
-    if (!isGoogleReturn) {
-      await sb.auth.signOut({ scope: 'local' });
-      return;
+    if (isGoogleReturn) {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        setAccessToken(session.access_token);
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        await boot();
+        handledByOAuth = true;
+      }
     }
-
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) return;
-
-    setAccessToken(session.access_token);
     await sb.auth.signOut({ scope: 'local' });
-    history.replaceState(null, '', window.location.pathname + window.location.search);
-    await boot();
   } catch {
     // Supabase client library didn't load — email/password login still works,
     // Google sign-in just won't be available this session.
   }
-})();
 
-// If "Remember me" was checked at login, reuse that same access token on a
-// fresh visit — this lasts only as long as the token itself is still valid,
-// not an indefinite session. boot() itself clears it if it's gone stale.
-(function restoreRememberedSession() {
-  const remembered = localStorage.getItem('watch2earn_remembered_token');
-  if (remembered && !accessToken) {
-    setAccessToken(remembered);
-    boot();
+  // If "Remember me" was checked at an earlier login, reuse that same access
+  // token on a fresh visit — this lasts only as long as the token itself is
+  // still valid, not an indefinite session. boot() itself clears it if it's
+  // gone stale. Skipped entirely when a fresh OAuth session just took over.
+  if (!handledByOAuth) {
+    const remembered = localStorage.getItem('watch2earn_remembered_token');
+    if (remembered && !accessToken) {
+      setAccessToken(remembered);
+      await boot();
+    }
   }
 })();
 
