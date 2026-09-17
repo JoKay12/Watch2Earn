@@ -69,12 +69,35 @@ let supabaseClient = null;
 let lastReferralTrigger = null;
 let lastQuizTrigger = null;
 
+// Applies a fresh Supabase session (from login/register, an OAuth redirect,
+// or an automatic background refresh) to app state. Supabase rotates the
+// refresh token on every refresh, so a "remembered" one in localStorage has
+// to be kept in sync here too, or it would go stale after the first refresh.
+function handleSupabaseSession(session) {
+  if (!session?.access_token) return;
+  setAccessToken(session.access_token);
+  if (session.refresh_token && localStorage.getItem('watch2earn_remembered_refresh_token')) {
+    localStorage.setItem('watch2earn_remembered_refresh_token', session.refresh_token);
+  }
+}
+
 async function getSupabaseClient() {
   if (supabaseClient) return supabaseClient;
   const res = await fetch('/api/config');
   const { supabaseUrl, supabaseAnonKey } = await res.json();
   if (!window.supabase) throw new Error('Google sign-in is temporarily unavailable — check your connection and reload.');
-  supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+  // persistSession is off: this app manages its own opt-in "remember me"
+  // (see establishInitialSession/login below) instead of always silently
+  // resuming whatever Supabase last stored. autoRefreshToken stays ON so a
+  // tab left open keeps a valid access token via the refresh token, instead
+  // of the access token quietly dying after Supabase's ~1h expiry — which
+  // is what used to make /ledger, /redemptions, etc. start failing with
+  // "Invalid or expired session" mid-session with no way to recover short
+  // of a full page reload.
+  supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: true, detectSessionInUrl: true },
+  });
+  supabaseClient.auth.onAuthStateChange((_event, session) => handleSupabaseSession(session));
   return supabaseClient;
 }
 
@@ -140,7 +163,7 @@ $('google-btn').onclick = async () => {
 };
 
 // Runs once on page load, in strict order: check for a fresh Google OAuth
-// return FIRST, and only fall back to a remembered token if that didn't
+// return FIRST, and only fall back to a remembered session if that didn't
 // apply. These used to be two separate, uncoordinated pieces of code — a
 // stale "remembered" token could win the race and overwrite a fresh Google
 // session before it finished resolving, which is what caused Google
@@ -153,27 +176,41 @@ $('google-btn').onclick = async () => {
     if (isGoogleReturn) {
       const { data: { session } } = await sb.auth.getSession();
       if (session) {
-        setAccessToken(session.access_token);
+        // Keep this session live in the client (rather than discarding it)
+        // so autoRefreshToken can keep it valid for the rest of the visit —
+        // previously it was thrown away right after being read, which is
+        // why Google-authenticated sessions went stale after an hour too.
+        handleSupabaseSession(session);
         history.replaceState(null, '', window.location.pathname + window.location.search);
         await boot();
         handledByOAuth = true;
       }
     }
-    await sb.auth.signOut({ scope: 'local' });
   } catch {
     // Supabase client library didn't load — email/password login still works,
     // Google sign-in just won't be available this session.
   }
 
-  // If "Remember me" was checked at an earlier login, reuse that same access
-  // token on a fresh visit — this lasts only as long as the token itself is
-  // still valid, not an indefinite session. boot() itself clears it if it's
-  // gone stale. Skipped entirely when a fresh OAuth session just took over.
+  // If "Remember me" was checked at an earlier login, use the saved refresh
+  // token to mint a brand-new access token — this session then stays alive
+  // on its own via autoRefreshToken for as long as the refresh token is
+  // valid (weeks), rather than the old approach of replaying a raw access
+  // token that was already stale within an hour. Skipped entirely when a
+  // fresh OAuth session just took over.
   if (!handledByOAuth) {
-    const remembered = localStorage.getItem('watch2earn_remembered_token');
-    if (remembered && !accessToken) {
-      setAccessToken(remembered);
-      await boot();
+    const rememberedRefreshToken = localStorage.getItem('watch2earn_remembered_refresh_token');
+    if (rememberedRefreshToken && !accessToken) {
+      try {
+        const sb = await getSupabaseClient();
+        const { data, error } = await sb.auth.refreshSession({ refresh_token: rememberedRefreshToken });
+        if (error || !data.session) throw error || new Error('No session returned');
+        handleSupabaseSession(data.session);
+        await boot();
+      } catch {
+        // Refresh token expired or was revoked elsewhere — don't keep
+        // retrying it on every future visit.
+        localStorage.removeItem('watch2earn_remembered_refresh_token');
+      }
     }
   }
 })();
@@ -188,15 +225,21 @@ $('login-form').onsubmit = async (e) => {
       method: 'POST',
       body: JSON.stringify({ email: $('login-email').value, password: $('login-password').value }),
     });
-    setAccessToken(data.accessToken);
-    // Remembering here just means "reuse this same access token if the tab
-    // is reopened" — it lasts as long as the token itself stays valid, not
-    // an indefinite persistent session. Anything longer would need the
-    // backend to hand out a refresh token too, which /api/login doesn't.
-    if ($('login-remember').checked) {
-      localStorage.setItem('watch2earn_remembered_token', data.accessToken);
+    if (data.refreshToken) {
+      // Hands the refresh token to the Supabase client so it can keep this
+      // session alive on its own — see getSupabaseClient() for why.
+      const sb = await getSupabaseClient();
+      await sb.auth.setSession({ access_token: data.accessToken, refresh_token: data.refreshToken });
     } else {
-      localStorage.removeItem('watch2earn_remembered_token');
+      setAccessToken(data.accessToken);
+    }
+    // Remembering here means "restore this session (via its refresh token)
+    // if the tab is reopened" — it lasts as long as the refresh token
+    // stays valid (weeks), not just the ~1h access token.
+    if ($('login-remember').checked && data.refreshToken) {
+      localStorage.setItem('watch2earn_remembered_refresh_token', data.refreshToken);
+    } else {
+      localStorage.removeItem('watch2earn_remembered_refresh_token');
     }
     await boot();
   } catch (err) {
@@ -225,7 +268,12 @@ $('register-form').onsubmit = async (e) => {
       switchTab('login');
       return;
     }
-    setAccessToken(data.accessToken);
+    if (data.refreshToken) {
+      const sb = await getSupabaseClient();
+      await sb.auth.setSession({ access_token: data.accessToken, refresh_token: data.refreshToken });
+    } else {
+      setAccessToken(data.accessToken);
+    }
     await boot();
   } catch (err) {
     $('auth-error').textContent = err.message;
@@ -274,7 +322,7 @@ document.addEventListener('click', (event) => {
 async function handleLogout() {
   try { await api('/logout', { method: 'POST' }); } catch { /* token may already be invalid — fine */ }
   setAccessToken(null);
-  localStorage.removeItem('watch2earn_remembered_token');
+  localStorage.removeItem('watch2earn_remembered_refresh_token');
   try {
     const sb = await getSupabaseClient();
     await sb.auth.signOut({ scope: 'local' });
@@ -386,9 +434,9 @@ async function boot() {
       $('auth-error').textContent = `Couldn't load your account (${err.message}). Try refreshing — if this keeps happening, the server may need to be restarted.`;
       console.error('Unexpected error in boot():', err.status, err.message);
     } else {
-      // A remembered token that no longer works (expired, or the user
-      // logged out elsewhere) shouldn't keep being retried on every visit.
-      localStorage.removeItem('watch2earn_remembered_token');
+      // A remembered refresh token that no longer works (revoked, or the
+      // user logged out elsewhere) shouldn't keep being retried on every visit.
+      localStorage.removeItem('watch2earn_remembered_refresh_token');
     }
     return;
   }
@@ -1162,7 +1210,13 @@ $('redeem-form').onsubmit = async (e) => {
 async function renderRedemptions() {
   const list = $('redemption-list');
   list.innerHTML = '<p class="note">Loading…</p>';
-  const rows = await api('/redemptions');
+  let rows;
+  try {
+    rows = await api('/redemptions');
+  } catch (err) {
+    list.innerHTML = `<p class="note error">Couldn't load your redemptions (${escapeHtml(err.message)}). Try again in a moment.</p>`;
+    return;
+  }
   if (!rows.length) {
     list.innerHTML = '<p class="note">No redemption requests yet.</p>';
     return;
@@ -1189,7 +1243,13 @@ async function renderRedemptions() {
 async function renderLedger() {
   const list = $('ledger-list');
   list.innerHTML = '<p class="note">Loading…</p>';
-  const rows = await api('/ledger');
+  let rows;
+  try {
+    rows = await api('/ledger');
+  } catch (err) {
+    list.innerHTML = `<p class="note error">Couldn't load your points activity (${escapeHtml(err.message)}). Try again in a moment.</p>`;
+    return;
+  }
   if (!rows.length) {
     list.innerHTML = '<p class="note">No points activity yet — watch a video to get started.</p>';
     return;

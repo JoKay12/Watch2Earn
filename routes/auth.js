@@ -52,6 +52,7 @@ router.post('/register', async (req, res) => {
 
   res.json({
     accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
     user: { id: data.user.id, email: data.user.email },
   });
 });
@@ -72,6 +73,7 @@ router.post('/login', async (req, res) => {
 
   res.json({
     accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
     user: { id: data.user.id, email: data.user.email },
   });
 });
