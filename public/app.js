@@ -355,7 +355,14 @@ $('auth-close-btn').onclick = () => {
 
 // ---------- Sidebar navigation ----------
 
-document.querySelectorAll('.side-nav-btn:not(.side-nav-parent):not(.mobile-more-btn)').forEach((btn) => {
+// [data-page] matters here, not just style: #mobile-more-logout shares the
+// generic .side-nav-btn class with the real page-switcher buttons (for
+// consistent styling in the mobile "More" popup) but isn't one — without
+// this filter it used to match here too, and this loop running after the
+// $('mobile-more-logout').onclick = handleLogout assignment above silently
+// overwrote it with switchPage(undefined), which threw on the missing
+// page-undefined element and left mobile users unable to log out at all.
+document.querySelectorAll('.side-nav-btn[data-page]:not(.side-nav-parent):not(.mobile-more-btn)').forEach((btn) => {
   btn.onclick = () => switchPage(btn.dataset.page);
 });
 
