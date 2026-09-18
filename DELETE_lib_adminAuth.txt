@@ -1,0 +1,1 @@
+NOTE: lib/adminAuth.js was DELETED — if it still exists in your local copy, delete it manually (git rm lib/adminAuth.js).

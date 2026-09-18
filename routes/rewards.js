@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
-import { requireAuth, requireAdmin, requirePayoutAdmin } from '../auth.js';
+import { requireAuth, requireAdmin, requirePayoutAdmin } from '../middleware/authMiddleware.js';
 import { processQueuedPayouts } from '../lib/payouts.js';
 
 const router = Router();
@@ -72,7 +72,7 @@ router.get('/redemptions', requireAuth, async (req, res) => {
   res.json(data);
 });
 
-// --- Admin endpoints (protect with x-admin-key header in this starter) ---
+// --- Admin endpoints (gated by role, via the admin_roles table lookup in requireAdminRole — not a shared x-admin-key secret) ---
 
 router.get('/admin/stats', requirePayoutAdmin, async (req, res) => {
   const { data, error } = await supabaseAdmin.rpc('admin_stats').single();

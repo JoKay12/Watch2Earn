@@ -1,0 +1,56 @@
+name: CI
+
+# Runs on every push and pull request against main, so a breaking change or
+# a newly-flagged vulnerability is caught before Render's auto-deploy ships
+# it to production (see the audit's Security and Backend findings — this
+# was the missing piece that let a couple of real bugs reach the live site
+# this session).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit dependencies
+        # --audit-level=high: fail the build on high/critical advisories,
+        # but don't block a merge over a low/moderate one in a transitive
+        # dependency — those get triaged, not treated as a stop-ship.
+        run: npm audit --audit-level=high
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
+        # Every test in tests/ mocks its API calls at the browser level
+        # (page.route), so the app never talks to real Supabase here —
+        # these placeholder values only need to be well-formed enough for
+        # the server to boot, not valid credentials. Never put real
+        # Supabase keys in this workflow.
+        env:
+          SUPABASE_URL: https://placeholder-project.supabase.co
+          SUPABASE_ANON_KEY: ci-placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
+          SESSION_SECRET: ci-placeholder-session-secret-1234567890
+        run: npm test
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
