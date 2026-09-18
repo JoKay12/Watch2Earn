@@ -29,7 +29,7 @@
   font-size: 13px;
 }
 .admin-toast.success { color: var(--mint); border-color: var(--mint-dim); }
-.admin-toast.error { color: #ff9aaa; border-color: rgba(239, 90, 111, 0.5); }
+.admin-toast.error { color: var(--danger-tint); border-color: rgba(239, 90, 111, 0.5); }
 
 #console { max-width: 1120px; margin: 0 auto; padding: 32px 24px 72px; }
 .admin-confirm {
@@ -100,7 +100,7 @@
 .admin-alert .btn-ghost { justify-self: start; margin-top: 8px; }
 .admin-subheading { margin: 30px 0 12px; }
 .admin-destination { margin-top: 7px; color: var(--text); font-size: 12px; }
-.admin-failure { margin-top: 5px; color: #ff9aaa; font-size: 12px; }
+.admin-failure { margin-top: 5px; color: var(--danger-tint); font-size: 12px; }
 .audit-row { grid-template-columns: 1fr auto; }
 
 /* Forms */
@@ -198,7 +198,7 @@
   font-weight: 600;
   font-size: 12px;
 }
-.btn-approve { background: var(--mint); color: #06231c; }
+.btn-approve { background: var(--mint); color: var(--on-mint); }
 .btn-reject { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
 
 /* Admin footer */
@@ -297,33 +297,13 @@
   margin-left: 4px;
   border-radius: 999px;
   background: var(--danger);
-  color: #fff;
+  color: var(--on-danger);
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
 }
 .nav-badge.hidden { display: none; }
 
-@media (max-width: 640px) {
-  #console { padding: 24px 16px 56px; }
-  .admin-row { grid-template-columns: 1fr; gap: 8px; padding: 14px; }
-  .admin-row.has-thumb { grid-template-columns: 56px 1fr; }
-  .admin-row.has-thumb .admin-row-thumb { grid-row: span 2; width: 56px; height: 42px; }
-  .admin-row .row-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .admin-row .row-actions > * { width: 100%; }
-  .audit-row { grid-template-columns: 1fr; }
-  .admin-footer { align-items: flex-start; flex-direction: column; margin-top: 36px; }
-  .video-table-toolbar { flex-direction: column; align-items: stretch; }
-  .toolbar-field input, .toolbar-field select { min-width: 0; width: 100%; }
-  .admin-toast { right: 16px; bottom: 16px; }
-  .admin-section-heading { align-items: flex-start; flex-direction: column; }
-  .admin-alert-grid { grid-template-columns: 1fr; }
-  .redeem-filter { overflow-x: auto; }
-  .redeem-filter .admin-nav-btn { flex: 0 0 auto; }
-  .admin-nav { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-  .admin-nav .admin-nav-btn { flex: 0 0 auto; }
-  .pagination-controls { flex-wrap: wrap; }
-}
 
 .pagination-controls {
   display: flex;
@@ -342,6 +322,11 @@
   padding: 0 16px;
   margin-bottom: 4px;
 }
+/* Lets each .tier-field wrapper vanish from the box model on desktop, so
+   its child (the span or input) still counts as one of the row's 4 direct
+   grid items — the markup gained a wrapper (for the mobile label below)
+   without changing the desktop grid at all. */
+.tier-field { display: contents; }
 .reward-tier-input {
   width: 100%;
   background: var(--card-raised);
@@ -355,3 +340,61 @@
 }
 .reward-tier-input:focus { border-color: var(--mint); }
 .reward-tier-input::placeholder { color: var(--muted); }
+
+/* ===== Tablet (matches style.css's own breakpoint scale) =====
+   Eases the highest-density elements before the phone breakpoint below has
+   to do all the work at once — a tablet-width admin session was previously
+   squeezed into the same 4-across reward tier grid and side-by-side
+   toolbar fields as desktop, well before there was room for them. */
+@media (max-width: 860px) {
+  .video-table-toolbar { flex-wrap: wrap; }
+  .toolbar-field { flex: 1 1 200px; }
+  .toolbar-field input, .toolbar-field select { min-width: 0; width: 100%; }
+  .admin-alert-grid { grid-template-columns: 1fr; }
+
+  /* Reward tier table: 4 cramped columns -> a labeled 2x2 grid. Each
+     .tier-field switches from `display: contents` (invisible on desktop)
+     to a real flex column with its data-label shown above the value. */
+  .reward-tier-header { display: none; }
+  .reward-tier-header, .reward-tier-row { grid-template-columns: 1fr 1fr; }
+  .reward-tier-row { gap: 14px 16px; }
+  .tier-field { display: flex; flex-direction: column; gap: 4px; }
+  .tier-field::before {
+    content: attr(data-label);
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+@media (max-width: 640px) {
+  #console { padding: 24px 16px 56px; }
+  .admin-row { grid-template-columns: 1fr; gap: 8px; padding: 14px; }
+  .admin-row.has-thumb { grid-template-columns: 56px 1fr; }
+  .admin-row.has-thumb .admin-row-thumb { grid-row: span 2; width: 56px; height: 42px; }
+  .admin-row .row-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-row .row-actions > * { width: 100%; }
+  .audit-row { grid-template-columns: 1fr; }
+  .admin-footer { align-items: flex-start; flex-direction: column; margin-top: 36px; }
+  .video-table-toolbar { flex-direction: column; align-items: stretch; }
+  /* Resets the 860px breakpoint's `flex: 1 1 200px` — flex-grow makes sense
+     for fields wrapping in a row, but the same rule in this column layout
+     stretches each field to fill the container's height equally, opening
+     up large empty gaps between the search box, selects, and sort button. */
+  .toolbar-field { flex: 0 1 auto; }
+  .toolbar-field input, .toolbar-field select { min-width: 0; width: 100%; }
+  .admin-toast { right: 16px; bottom: 16px; }
+  .admin-section-heading { align-items: flex-start; flex-direction: column; }
+  .admin-alert-grid { grid-template-columns: 1fr; }
+  .redeem-filter { overflow-x: auto; }
+  .redeem-filter .admin-nav-btn { flex: 0 0 auto; }
+  .admin-nav { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .admin-nav .admin-nav-btn { flex: 0 0 auto; }
+  .pagination-controls { flex-wrap: wrap; }
+
+  /* Reward tier table: the tablet 2x2 grid above is still a bit tight
+     alongside longer labels like "Airtime (GHS)" at phone widths — drop to
+     one field per row here. */
+  .reward-tier-header, .reward-tier-row { grid-template-columns: 1fr; }
+}

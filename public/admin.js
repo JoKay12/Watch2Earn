@@ -530,10 +530,10 @@ async function loadRewardTiers() {
     </div>
   ` + tiers.map((t) => `
     <div class="admin-row reward-tier-row" data-id="${t.id}">
-      <span class="primary">${t.points_required.toLocaleString()}</span>
-      <input type="number" step="0.01" min="0" class="reward-tier-input" data-field="airtimeGhs" value="${t.airtime_ghs ?? ''}" placeholder="—">
-      <input type="number" step="0.01" min="0" class="reward-tier-input" data-field="dataGhs" value="${t.data_ghs ?? ''}" placeholder="—">
-      <input type="number" step="0.01" min="0" class="reward-tier-input" data-field="cashGhs" value="${t.cash_ghs ?? ''}" placeholder="—">
+      <div class="tier-field" data-label="Points"><span class="primary">${t.points_required.toLocaleString()}</span></div>
+      <div class="tier-field" data-label="Airtime (GHS)"><input type="number" step="0.01" min="0" class="reward-tier-input" data-field="airtimeGhs" value="${t.airtime_ghs ?? ''}" placeholder="—"></div>
+      <div class="tier-field" data-label="Data (GHS)"><input type="number" step="0.01" min="0" class="reward-tier-input" data-field="dataGhs" value="${t.data_ghs ?? ''}" placeholder="—"></div>
+      <div class="tier-field" data-label="Cash (GHS)"><input type="number" step="0.01" min="0" class="reward-tier-input" data-field="cashGhs" value="${t.cash_ghs ?? ''}" placeholder="—"></div>
     </div>
   `).join('');
 

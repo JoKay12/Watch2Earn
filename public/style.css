@@ -1,6 +1,10 @@
 /* ===== Tokens ===== */
+/* Dark is this app's native theme (and the default below), not an
+   afterthought — these are the values used throughout. The light theme
+   further down is the derived/secondary palette. */
 :root {
   --bg: #0B1220;
+  --bg-rgb: 11, 18, 32; /* same color as --bg, as an r,g,b triplet — lets rgba(var(--bg-rgb), <alpha>) track the theme for translucent overlays like the sticky topbar */
   --card: #121B2E;
   --card-raised: #162136;
   --border: #1F2A40;
@@ -8,13 +12,59 @@
   --muted: #828C9E;
   --gold: #F2B705;
   --gold-dim: #6b5c1f;
+  --gold-tint: #ffd44b; /* brighter gold for hover states on dark backgrounds */
+  --on-gold: #1f1803;   /* text/icon color placed on top of a solid --gold fill */
   --mint: #33D6A6;
   --mint-dim: #1b4a3d;
+  --on-mint: #06231c;   /* text/icon color placed on top of a solid --mint fill */
   --danger: #ef5a6f;
+  --danger-tint: #ff9aaa; /* brighter danger text on dark backgrounds (toasts, inline errors) */
+  --on-danger: #fff;      /* text placed on top of a solid --danger fill (badges) */
+  --input-bg: #0d1420;
   --radius: 14px;
   --font-display: 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
+}
+
+/* ===== Light theme =====
+   Respects the OS/browser color-scheme preference automatically. `[data-theme]`
+   on <html> lets a future manual toggle force either theme regardless of the
+   OS setting (not built here — no toggle UI exists yet — but the hook is
+   ready: document.documentElement.dataset.theme = 'light' | 'dark'). */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --bg: #F5F6FA;
+    --bg-rgb: 245, 246, 250;
+    --card: #FFFFFF;
+    --card-raised: #FFFFFF;
+    --border: #DEE2EC;
+    --text: #10151F;
+    --muted: #5B6478;
+    --gold-dim: #FCE9A8;
+    --gold-tint: #C98A00;
+    --mint-dim: #D8F5EA;
+    --danger-tint: #C4293F; /* --danger-tint is plain text on --bg/--card, unlike --on-*, so it does need a darker value here for contrast on a light background */
+    --input-bg: #FFFFFF;
+    /* --gold, --mint, --danger, --on-gold, --on-mint, --on-danger
+       keep their dark-theme values — those fills have the same luminance in
+       both themes, so the text/icons that sit on them don't need to change. */
+  }
+}
+
+:root[data-theme='light'] {
+  --bg: #F5F6FA;
+  --bg-rgb: 245, 246, 250;
+  --card: #FFFFFF;
+  --card-raised: #FFFFFF;
+  --border: #DEE2EC;
+  --text: #10151F;
+  --muted: #5B6478;
+  --gold-dim: #FCE9A8;
+  --gold-tint: #C98A00;
+  --mint-dim: #D8F5EA;
+  --danger-tint: #C4293F;
+  --input-bg: #FFFFFF;
 }
 
 * { box-sizing: border-box; }
@@ -71,7 +121,7 @@ body.dialog-open { overflow: hidden; }
   line-height: 1.4;
 }
 .app-toast.success { border-color: var(--mint-dim); color: var(--mint); }
-.app-toast.error { border-color: rgba(239, 90, 111, 0.5); color: #ff9aaa; }
+.app-toast.error { border-color: rgba(239, 90, 111, 0.5); color: var(--danger-tint); }
 
 /* ===== Topbar ===== */
 .topbar {
@@ -82,7 +132,7 @@ body.dialog-open { overflow: hidden; }
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  background: rgba(11, 18, 32, 0.9);
+  background: rgba(var(--bg-rgb), 0.9);
   backdrop-filter: blur(8px);
   z-index: 10;
 }
@@ -194,7 +244,7 @@ body.is-authed .topbar-cta { display: none; }
   white-space: nowrap;
   padding-top: 6px;
 }
-.featured-view-all:hover { color: #ffd44b; }
+.featured-view-all:hover { color: var(--gold-tint); }
 .featured-view-all span { font-size: 22px; line-height: 0; vertical-align: -2px; margin-left: 6px; }
 
 .featured-video-grid {
@@ -248,7 +298,7 @@ body.is-authed .topbar-cta { display: none; }
   place-items: center;
   padding-left: 3px;
   border-radius: 50%;
-  color: #1f1803;
+  color: var(--on-gold);
   background: var(--gold);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.28);
   font-size: 18px;
@@ -285,7 +335,7 @@ body.is-authed .topbar-cta { display: none; }
   border: 0;
   border-radius: 8px;
   background: var(--gold);
-  color: #1f1803;
+  color: var(--on-gold);
   cursor: pointer;
   font-weight: 700;
   transition: transform 0.15s ease, background 0.15s ease;
@@ -530,7 +580,7 @@ body.is-authed .topbar-cta { display: none; }
   height: 40px;
   border-radius: 50%;
   background: var(--mint);
-  color: #06231c;
+  color: var(--on-mint);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -854,7 +904,7 @@ label {
 }
 
 input, select {
-  background: #0d1420;
+  background: var(--input-bg);
   border: 1px solid var(--border);
   color: var(--text);
   padding: 11px 12px;
@@ -865,7 +915,7 @@ input:focus, select:focus { border-color: var(--mint); }
 
 .btn-primary {
   background: var(--mint);
-  color: #06231c;
+  color: var(--on-mint);
   border: none;
   padding: 12px;
   border-radius: 8px;
@@ -921,7 +971,10 @@ input:focus, select:focus { border-color: var(--mint); }
 }
 .link-btn:hover { text-decoration: underline; }
 
-/* ===== Google sign-in button ===== */
+/* ===== Google sign-in button =====
+   Deliberately NOT themed — Google's brand guidelines specify this button's
+   colors, and it needs to stay recognizable as "the real Google button" in
+   both light and dark theme. */
 .btn-google {
   display: flex;
   align-items: center;
@@ -980,7 +1033,7 @@ input:focus, select:focus { border-color: var(--mint); }
   .dashboard-summary-card { min-height: 124px; }
   .referral-social-share { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .referral-share-actions { flex-direction: column; }
-  #native-share-referral-btn { order: -1; background: var(--mint); border-color: var(--mint); color: #06231c; font-weight: 700; }
+  #native-share-referral-btn { order: -1; background: var(--mint); border-color: var(--mint); color: var(--on-mint); font-weight: 700; }
 }
 
 .meter-card {
@@ -1063,6 +1116,9 @@ input:focus, select:focus { border-color: var(--mint); }
 }
 .referral-share-header h3 { margin: 4px 0 0; }
 .referral-qr {
+  /* Deliberately NOT themed — the qrcodejs library draws dark modules
+     assuming a light backing, so this stays white in both themes or the
+     QR code loses scan contrast. */
   display: grid;
   place-items: center;
   min-height: 220px;
@@ -1194,6 +1250,9 @@ input:focus, select:focus { border-color: var(--mint); }
 .player-card { margin-top: 18px; }
 .player-frame-wrap { position: relative; flex: 1; }
 .player-play-overlay {
+  /* Deliberately NOT theme-linked (unlike the topbar above) — this dims a
+     video thumbnail, not page chrome, so it stays a dark scrim in both
+     themes for contrast against the (usually bright) thumbnail underneath. */
   position: absolute;
   inset: 0;
   display: flex;
