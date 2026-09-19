@@ -966,12 +966,21 @@ async function sendHeartbeat() {
     });
 
     const verified = data.verifiedPositionSeconds ?? data.positionSeconds ?? 0;
-    setWatchRing(verified / state.activeVideo.duration_seconds);
+    // The server calls a video "done" at 95% watched, not 100% (see
+    // COMPLETION_THRESHOLD in routes/watchSessions.js — it accounts for the
+    // player's "ended" event firing a fraction of a second early), and the
+    // ring otherwise only ever shows the last heartbeat's real position. Left
+    // alone, that means the ring visibly freezes somewhere in the 95-99%
+    // range right as the video is marked complete, which reads as a bug even
+    // though the reward is already fully credited. Snap it to a full ring
+    // the instant the server says the video is done, purely cosmetic.
+    const isDone = data.status === 'quiz_pending' || data.status === 'completed';
+    setWatchRing(isDone ? 1 : verified / state.activeVideo.duration_seconds);
 
     // If the server didn't credit the position we reported (i.e. we tried to
     // seek ahead), snap the player back — the server already ignored the
     // jump for scoring purposes, this just keeps the UI consistent with that.
-    if (reportedPosition > verified + 2) {
+    if (!isDone && reportedPosition > verified + 2) {
       state.player.seekTo(verified, true);
       $('watch-status').textContent = "Seeking ahead isn't allowed — watch time only counts while playing.";
     }
